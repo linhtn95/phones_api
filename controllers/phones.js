@@ -33,9 +33,6 @@ module.exports.controller = function (app) {
     });
 
     app.post('/phone', (req, res) => { 
-        // const regex = /\r\n/g;
-        // let urlImg = req.body.img;
-        // urlImg = urlImg.replace(regex, `','`);
         const phone = new Phones({
             name: req.body.name,
             brand: req.body.brand,
