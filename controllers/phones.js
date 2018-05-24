@@ -88,7 +88,3 @@ module.exports.controller = function (app) {
         res.redirect('/');
     });
 }
-
-function newFunction() {
-    return 'add';
-}
