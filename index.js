@@ -1,7 +1,8 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const fs = require('fs');
+const path = require('path');
 const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
 
 mongoose.connect('mongodb://localhost:27017/phones_api', (error) => {
     if (error) throw error;
@@ -9,12 +10,13 @@ mongoose.connect('mongodb://localhost:27017/phones_api', (error) => {
 });
 
 const app = express();
+
+app.set('views', __dirname + '/views');
+app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({
     extended: true
 }));
-
 app.use(bodyParser.json());
-
 app.use((req, res, next) => {
     res.header("Access-Control-Allow-Origin", "*");
     res.header(
@@ -27,65 +29,14 @@ app.use((req, res, next) => {
     }
     next();
 });
+// app.use(app.router);
+app.use(express.static(path.join(__dirname, 'public')));
 
-const phoneSchema = new Schema({
-    name: String,
-    brand: String,
-    price: Number,
-    img: String
+fs.readdirSync('./controllers').forEach((file) => {
+    if(file.substr(-3) == '.js') {
+        route = require('./controllers/' + file);
+        route.controller(app);
+    }
 });
 
-const Phones = mongoose.model('Phones', phoneSchema);
-
-app.get('/', (req, res) => {
-    Phones.find({}, (err, phones) => {
-        if (err) {
-            console.log(err);
-        }
-        console.log('GET METHOD: ', phones);
-    });
-    res.end('GET');
-});
-
-app.post('/', (req, res) => {
-    const phone = new Phones({
-        name: req.body.name,
-        brand: req.body.brand,
-        price: req.body.price,
-        img: req.body.img
-    });
-    phone.save((err) => {
-        if (!err) {
-            return console.log('POST METHOD:', phone);
-        } else {
-            return console.log(err);
-        }
-    });
-    res.end("POST");
-});
-
-app.put('/:id', (req, res) => {
-    Phones.findByIdAndUpdate(req.params.id, req.body, (err) => {
-        console.log(req.body);
-        if (err) {
-            console.log(err);
-        } else {
-            console.log('PUT METHOD');
-        }
-    });
-    res.end('PUT');
-});
-
-app.delete('/:id', (req, res) => {
-    Phones.remove({
-        _id: req.params.id
-    }, (err) => {
-        if (err) {
-            res.send(err);
-        }
-        console.log('DELETE METHOD');
-    });
-    res.end('DELETE');
-});
-
-app.listen(3000, () => console.log('Server is running!'));
+app.listen(3000, () => console.log('Server is running at localhost:3000'));
