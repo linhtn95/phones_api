@@ -49,9 +49,13 @@ module.exports.controller = function (app) {
         res.render('add');
     });
 
+<<<<<<< HEAD
     app.post('/phone', upload.array('img'), (req, res) => {
         const img = req.files;
         const imgImage = img.map(element => element.path);
+=======
+    app.post('/phone', (req, res) => { 
+>>>>>>> 1bc12b0178ef5fbb64f433d0e8fddd14fc6a27c4
         const phone = new Phones({
             name: req.body.name,
             brand: req.body.brand,
