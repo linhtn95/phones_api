@@ -1,6 +1,24 @@
 const mongoose = require('mongoose');
 const Phones = require('../models/phone');
-console.log(Phones);
+const multer = require('multer');
+const path = require('path');
+
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, './uploads/');
+    },
+    filename: function (req, file, cb) {
+        cb(null, new Date().toISOString().replace(/:/g, '-') + file.originalname);
+    }
+});
+
+const upload = multer({
+    storage: storage,
+    limits: {
+        fileSize: 1024 * 1024 * 5
+    }
+});
+
 module.exports.controller = function (app) {
     //Get all phone
     app.get('/', (req, res) => {
@@ -23,7 +41,6 @@ module.exports.controller = function (app) {
             res.render('detail', {
                 phone: phone
             });
-            console.log(phone);
         });
     });
 
@@ -32,16 +49,16 @@ module.exports.controller = function (app) {
         res.render('add');
     });
 
-    app.post('/phone', (req, res) => { 
-        // const regex = /\r\n/g;
-        // let urlImg = req.body.img;
-        // urlImg = urlImg.replace(regex, `','`);
+    app.post('/phone', upload.array('img'), (req, res) => {
+        const img = req.files;
+        const imgImage = img.map(element => element.path);
         const phone = new Phones({
             name: req.body.name,
             brand: req.body.brand,
             price: req.body.price,
-            img: req.body.img
+            img: imgImage
         });
+        console.log('imge', phone.img);
         phone.save((err) => {
             if (!err) {
                 return console.log('POST METHOD:', phone);
