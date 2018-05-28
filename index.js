@@ -2,6 +2,12 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const fs = require('fs');
 const path = require('path');
+const passport = require('passport');
+// const flash = require('connect-flash');
+const flash = require('express-flash');
+const morgan = require('morgan');
+const cookieParser = require('cookie-parser');
+const session = require('express-session');
 const mongoose = require('mongoose');
 
 mongoose.connect('mongodb://localhost:27017/phones_api', (error) => {
@@ -9,10 +15,26 @@ mongoose.connect('mongodb://localhost:27017/phones_api', (error) => {
     console.log('MongoDB connected!');
 });
 
+require('./config/passport')(passport); // pass passport for configuration
+
+
 const app = express();
+// require('./controllers/users')(app, passport);
+
+// app.use(cookieParser());
+app.use(cookieParser('secret'));
+app.use(bodyParser());
+app.use(morgan('dev'));
 
 app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');
+
+// app.use(session({ secret: 'keyboard cat' }));
+app.use(session({cookie: { maxAge: 60000 }}));
+app.use(passport.initialize());
+app.use(passport.session());
+app.use(flash());
+
 app.use(bodyParser.urlencoded({
     extended: true
 }));
@@ -34,9 +56,9 @@ app.use((req, res, next) => {
 app.use(express.static(path.join(__dirname, 'public')));
 
 fs.readdirSync('./controllers').forEach((file) => {
-    if(file.substr(-3) == '.js') {
+    if (file.substr(-3) == '.js') {
         route = require('./controllers/' + file);
-        route.controller(app);
+        route.controller(app, passport);
     }
 });
 

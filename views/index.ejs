@@ -16,7 +16,14 @@
             <small></small>
         </h1>
 
-        <!-- Project One -->
+        <% if (messages.success) { %>
+            <div class="alert alert-success alert-dismissible fade show">
+                <strong><%= messages.success %></strong>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        <% } %>
         <div class="row">
             <% phones.forEach(function(phone){ %>
                 <div class="col-md-7">

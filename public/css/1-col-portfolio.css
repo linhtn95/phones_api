@@ -20,3 +20,8 @@ body {
   right: 0;
   left: 0;
 }
+
+.form-horizontal {
+  margin: 0 auto;
+  width: 500px;
+}

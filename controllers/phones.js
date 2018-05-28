@@ -19,7 +19,7 @@ const upload = multer({
     }
 });
 
-module.exports.controller = function (app) {
+module.exports.controller = function (app, passport) {
     //Get all phone
     app.get('/', (req, res) => {
         Phones.find({}, (err, phones) => {
@@ -60,12 +60,13 @@ module.exports.controller = function (app) {
         });
         phone.save((err) => {
             if (!err) {
-                return console.log('POST METHOD:', phone);
+                req.flash('success', 'Adding Successfully!');
+                res.redirect('/');
             } else {
-                return console.log(err);
+                req.flash('error', 'Adding Failed! Please try again!');
+                res.redirect('/phone');
             }
         });
-        res.redirect('/');
     });
 
     //Edit a phone
@@ -83,13 +84,14 @@ module.exports.controller = function (app) {
     app.post('/edit/:_id', (req, res) => {
         Phones.findByIdAndUpdate(req.params._id, req.body, (err) => {
             if (err) {
-                console.log(err);
+                req.flash('error', 'Update Failed! Please try again!');
+                res.redirect('/edit/:_id');
             } else {
-                console.log('PUT METHOD');
+                req.flash('success', 'Updated Successfully!');
+                res.redirect('/');
             }
             
         });
-        res.redirect('/');
     });
 
     //Delete a phone
@@ -98,10 +100,11 @@ module.exports.controller = function (app) {
             _id: req.params._id
         }, (err) => {
             if (err) {
-                console.log(err);
+                req.flash('error', 'Delete Failed! Please try again!');
             }
-            console.log('DELETE METHOD');
+            // console.log('DELETE METHOD');
+            req.flash('success', 'Delete Successfully!');
+            res.redirect('/');
         });
-        res.redirect('/');
     });
 }
